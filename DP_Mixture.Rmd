@@ -1,9 +1,29 @@
+---
+title: "DP_Mixture"
+author: "HuanChen"
+date: "2019/3/2"
+output: 
+  html_document:
+    toc: true # table of content true
+    toc_depth: 3  # upto three depths of headings (specified by #, ## and ###)
+    number_sections: true  ## if you want number sections at each table header
+    theme: yeti  # many options for theme, this one is my favorite.
+    highlight: tango  # specifies the syntax highlighting style
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Load packages
+```{r, message = FALSE}
 ## Load packages
 library(MASS)
 library(tidyverse)
 library(invgamma)
-
-#################### Hyperparameters to be tuned during the DP Mixture ##################
+```
+# Hyperparameters to be tuned during the DP Mixture
+```{R}
 ## Total number of iteraitons
 T = 200
 ## Hyperparameter for DP
@@ -46,20 +66,16 @@ b1 = 1
 ## Number of clusters
 Cluster_num = 10
 
-#########################################################################################
-
-
-######################Function to compute bivariate normal density######################
+```
+# Function to compute bivariate normal density
+```{r}
 bivariate_normal <- function(y_temp, mu_temp, sigma_temp){
   return(1 / (2 * pi * det(sigma_temp)^0.5) * exp( - 1 / 2 * (y_temp - mu_temp) %*% solve(sigma_temp) %*% (y_temp - mu_temp) ))
 }
-#########################################################################################
+```
 
-
-
-
-
-############################ Generate the Gaussian Mixture Model############################ 
+# Generate the Gaussian Mixture Model
+```{r}
 data_store = c()
 index_store = c()
 ## Generate the data points from the model
@@ -68,9 +84,10 @@ for(i in 1 : N){
   data_store = rbind(data_store, mvrnorm(1, mu[index, ], sigma))
   index_store = c(index_store, index)
 }
-###########################################################################################
+```
 
-
+# MCMC
+```{r}
 ## Start of the MCMC
 
 s = list()
@@ -130,7 +147,7 @@ for(t in 1 : T){
       theta[[t + 1]][[j]] = NULL
     }
   }
-  print(table(s[[t]]))
+  #print(table(s[[t]]))
   #print(theta[[t]][[1]])
   
   ## Update M 
@@ -175,13 +192,15 @@ for(t in 1 : T){
     }
   }
   sigma0[[t + 1]] = diag(2) * rinvgamma(1, alpha1, beta1)
-  
-  
 }
+```
 
+# Output the result
+```{r}
+print(table(s[[t]]))
 par(mfrow = c(2,2))
 acf(M)
 plot(M, type = "l", main = "Time Series Plot of the estimated M")
 plot(data_store, col = s[[t]], main = "Clustering result")
 plot(data_store, col = index_store, main = "Data Generateing Result")
-
+```
