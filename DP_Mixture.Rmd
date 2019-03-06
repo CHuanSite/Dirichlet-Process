@@ -147,7 +147,11 @@ for(t in 1 : T){
       theta[[t + 1]][[j]] = NULL
     }
   }
-  #print(table(s[[t]]))
+  if(t %% 10 == 0){
+    print(paste0("At iteration ", t))
+    print(table(s[[t]]))
+    #print(theta[[t]])
+  }
   #print(theta[[t]][[1]])
   
   ## Update M 
